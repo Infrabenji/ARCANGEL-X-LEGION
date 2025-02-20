@@ -9,3 +9,4 @@ scikit-image
 tqdm
 pandas
 matplotlib
+opencv-python-headless
