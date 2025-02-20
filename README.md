@@ -1,5 +1,5 @@
-# ARCANGEL-X-LEGION
-ARCANGEL EP X LEGION is a simple yet sophisticated multi-agent equipped, State-Managed intelligence system pushing the limits of abstract reasoning and decision making. Designed to solve the Abstract Reasoning Corpus (ARC) challenges through cognitive refinement, its lean, modular codebase implements advanced cognitive algorithms_ rooted in Active Inference. The system further employs:
+# ARCANGEL EP
+ARCANGEL EP is a simple yet sophisticated multi-agent equipped, State-Managed intelligence system pushing the limits of abstract reasoning and decision making. Designed to solve the Abstract Reasoning Corpus (ARC) challenges through cognitive refinement, its lean, modular codebase implements advanced cognitive algorithms_ rooted in Active Inference. The system further employs:
 * Dynamic Memory Management: Implements efficient memory encoding and retrieval to support rapid context switching and adaptive learning.
 * Requirement Equation Integration: Utilizes a novel requirement equation to drive non-linear state transitions and optimize decision-making processes.
 * Advanced Cognitive Modules: Incorporates belief updating, distress modulation, and specialized pattern recognition subsystems to enable adaptive, high-level reasoning.
