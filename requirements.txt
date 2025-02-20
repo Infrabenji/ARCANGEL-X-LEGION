@@ -1,5 +1,5 @@
 numpy
-opencv-python
+opencv-python-headless
 scipy
 scikit-learn
 tensorflow
@@ -9,4 +9,3 @@ scikit-image
 tqdm
 pandas
 matplotlib
-opencv-python-headless
