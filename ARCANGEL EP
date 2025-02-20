@@ -1,4 +1,3 @@
-from asyncio import threads
 import os
 import json
 import random
@@ -10,17 +9,33 @@ import scipy
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score
 import sklearn
+
+# Completely disable GPU usage
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # Forces CPU-only execution
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # Suppress unnecessary TensorFlow logs
+
 import tensorflow as tf
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+# Ensure TensorFlow does not use GPU
+try:
+    tf.config.set_visible_devices([], "GPU")  # Remove GPU devices
+except:
+    pass  # Ignore errors if no GPU is found
+
+# Disable GPU for PyTorch
+torch.backends.cudnn.enabled = False  # Disable cuDNN
+torch.cuda.is_available = lambda: False  # Trick PyTorch into thinking there's no GPU
+
 import networkx as nx
 import scipy.ndimage as ndimage
 from skimage.transform import resize
 from tqdm import tqdm
 import pandas as pd
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use('Agg')  # Non-interactive mode for Matplotlib
 import matplotlib.pyplot as plt
 from typing import Optional, Tuple, List, Dict, Union, Callable
 from collections import deque
@@ -30,21 +45,16 @@ from concurrent.futures import ThreadPoolExecutor
 print(f"scipy version: {scipy.__version__}")
 print(f"sklearn version: {sklearn.__version__}")
 
-# Ensure TensorFlow is using the CPU
-tf.config.set_visible_devices([], 'GPU')
-
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', force=True)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s", force=True)
 logger = logging.getLogger(__name__)
 logger.info("Imports completed successfully")
 
-# Configure random seeds
+# Configure random seeds for reproducibility
 random.seed(42)
 np.random.seed(42)
 tf.random.set_seed(42)
 torch.manual_seed(42)
-if torch.cuda.is_available():
-    torch.cuda.manual_seed_all(42)
 
 # Constants
 WINDOW_SIZE = (30, 30)
@@ -190,14 +200,14 @@ def generate_task_report(challenges: Dict, challenge_type: str, examples_key: st
     # Compute percentage of correct tasks
     percentage = (correct_tasks / total_tasks) * 100 if total_tasks > 0 else 0.0
 
-    # Print the report exactly as requested
+    # Print the report 
     print(f"{challenge_type} Challenges Report:")
     print(f"Total: {total_tasks}")
     print(f"Correct: {correct_tasks}")
     print(f"Incorrect: {incorrect_tasks}")
     print(f"Percentage: {percentage:.2f}%\n")
 
-    # Optionally log the same report
+    # Log the report
     logging.info(
         f"{challenge_type} Challenges Report:\n"
         f"Total: {total_tasks}\n"
@@ -269,7 +279,7 @@ def combined_feature_extraction(grid: np.ndarray, target_feature_length: int = T
             conv_features.extend(conv_result.flatten())
         features.extend(conv_features)
 
-        # Additional global statistics
+        # Global statistics
         additional_stats = [
             np.nansum(grid), np.nanmean(grid), np.nanvar(grid),
             np.nanmin(grid), np.nanmax(grid)
@@ -846,13 +856,13 @@ class EpsilonControlCenter:
         self.epsilon_decay = 0.995
         self.M = markov_matrix if markov_matrix is not None else np.identity(7)
         self.distress_states = {
-            'cognitive_load': 0, #-3
-            'time_pressure': 1, #-2
-            'focus_intensity': 2, #-5
-            'error_feedback': 3, #-4
-            'resource_limit': 4, #-3
-            'confidence_right': 5, #+ from 1.000
-            'confidence_wrong': 6 #+ from 0.998
+            'cognitive_load': 0, 
+            'time_pressure': 1, 
+            'focus_intensity': 2, 
+            'error_feedback': 3, 
+            'resource_limit': 4, 
+            'confidence_right': 5, 
+            'confidence_wrong': 6 
         }
 
     def adjust_distress(self, state: str, delta: float) -> None:
@@ -956,8 +966,8 @@ class CognitiveSystem:
         self.cognitive_states += belief_update
 
         # Introduce non-linearity in belief updates
-        self.cognitive_states = np.tanh(self.cognitive_states)  # Applies tanh to introduce non-linear saturation
-        self.cognitive_states = np.clip(self.cognitive_states, 0, 1)  # Keep states within bounds
+        self.cognitive_states = np.tanh(self.cognitive_states)  
+        self.cognitive_states = np.clip(self.cognitive_states, 0, 1)  
 
     def action_selection(self):
         """
@@ -972,7 +982,7 @@ class CognitiveSystem:
 
         # Decay epsilon to reduce exploration over time
         self.epsilon *= self.epsilon_decay
-        self.epsilon = max(self.epsilon, 0.01)  # Ensure epsilon doesn't fall below a threshold
+        self.epsilon = max(self.epsilon, 0.01)  
         return action
 
     def evaluate_action(self, action, target_state):
@@ -1322,7 +1332,7 @@ class ProblemSolvingIntelligence:
             new_features = combined_feature_extraction(working_grid, self.feature_length)
             self.current_features = new_features
     
-            # Calculate reward using your existing reward function
+            # Calculates reward using the existing reward function
             if correct_output is not None:
                 reward = self.calculate_reward(working_grid, correct_output)
             else:
@@ -1417,7 +1427,7 @@ class ProblemSolvingIntelligence:
                 action_id = random.choice(best_actions)
                 logger.debug(f"Exploitation: Selected action ID {action_id} with Q-value {max_q_value}")
 
-            # Optionally, add a mechanism to prevent immediate repetition
+            # Add a function to prevent immediate repetition
             if self.previous_action_id == action_id:
                 logging.debug(f"Re-selected the same action ID {action_id} as previous. Considering diversity.")
 
@@ -1944,7 +1954,7 @@ class ProblemSolvingIntelligence:
                     logging.warning(f"Resizing predicted_output from {predicted_output.shape} to match output_grid {output_grid.shape}")
                     predicted_output = self.resize_grid(predicted_output, output_grid.shape)
     
-                # Optionally update context
+                # Update context
                 if input_grid.shape == output_grid.shape:
                     self.update_context(input_grid, output_grid)
     
@@ -2207,7 +2217,7 @@ def main():
             logging.error("One or more required files are missing. Exiting main.")
             return
 
-        # Load JSON files using your defined load_json_data function
+        # Load JSON files using defined load_json_data function
         training_challenges = load_json_data(training_challenges_path)
         training_solutions = load_json_data(training_solutions_path)
         evaluation_challenges = load_json_data(evaluation_challenges_path)
