@@ -49,9 +49,7 @@ mkdir ~/Desktop/almostnim
 
 To install all dependencies, run:
 
-``bash
 bash setup.sh
-
 
 ## Usage
 
