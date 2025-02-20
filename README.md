@@ -13,8 +13,8 @@ ARCANGEL EP is a simple yet sophisticated multi-agent equipped, State-Managed in
   - Adaptive distress modulation
 
 - **Advanced Pattern Recognition** 
-  - Worden-RE subsystem 
-  - Prioritization, Optimization, & Iteration
+  - Attentional Selection 
+  - Dimensionality Reduction
   - Dynamic feature extraction
 
 - **Learning Systems**
