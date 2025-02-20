@@ -45,6 +45,14 @@ mkdir ~/Desktop/almostnim
 * arc-agi_evaluation_challenges.json
 * arc-agi_evaluation_solutions.json
 
+## Setup Instructions
+
+To install all dependencies, run:
+
+``bash
+bash setup.sh
+
+
 ## Usage
 
 Basic usage example:
