@@ -1517,53 +1517,55 @@ class ProblemSolvingIntelligence:
             return grid
 
     def generate_action_space(self, grid_width: int, grid_height: int, num_layers: int = 1) -> None:
-        try:
-            assert grid_width > 0 and grid_height > 0, "Grid dimensions must be greater than 0"
-            logger.info(f"Generating action space for grid ({grid_width}x{grid_height}), num_layers={num_layers}")
+    try:
+        assert grid_width > 0 and grid_height > 0, "Grid dimensions must be greater than 0"
+        logger.info(f"Generating action space for grid ({grid_width}x{grid_height}), num_layers={num_layers}")
 
-            self.ACTION_MAP = {}
-            self.INVERSE_ACTION_MAP = {}
+        self.ACTION_MAP = {}
+        self.INVERSE_ACTION_MAP = {}
 
-            action_id = 0
-            actions_added = False  
+        action_id = 0
+        actions_added = False  # Track whether actions were added
 
-            # Primary Actions: place_color
-            if self.current_grid.shape == self.correct_output.shape:
-                diff = np.argwhere(self.current_grid != self.correct_output)
-                for x, y in diff:
-                    target_color = self.correct_output[x, y]
-                    action = ('place_color', (int(x), int(y), int(target_color), 0))
-                    self.ACTION_MAP[action_id] = action
-                    self.INVERSE_ACTION_MAP[action] = action_id
-                    action_id += 1
-                    actions_added = True
+        # Generate plausible actions without using correct_output directly
+        # Option 1: Use memory-based patterns
+        inferred_patterns = self.memory_manager.retrieve_patterns(self.current_grid)
 
-            # Transformation Actions (Temporarily Disabled)
-            # transformations = [
-            #     ('rotate_90', None),
-            #     ('rotate_180', None),
-            #     ('rotate_270', None),
-            #     ('flip_horizontal', None),
-            #     ('flip_vertical', None),
-            #     ('scale_up', 1.5),    # Adjusted scaling factor
-            #     ('scale_down', 0.5)   # Adjusted scaling factor
-            # ]
-            # for transform_action in transformations:
-            #     self.ACTION_MAP[action_id] = transform_action
-            #     self.INVERSE_ACTION_MAP[transform_action] = action_id
-            #     action_id += 1
-            #     actions_added = True
+        for pattern in inferred_patterns:
+            x, y, inferred_color = pattern
+            action = ('place_color', (int(x), int(y), int(inferred_color), 0))
+            self.ACTION_MAP[action_id] = action
+            self.INVERSE_ACTION_MAP[action] = action_id
+            action_id += 1
+            actions_added = True
 
-            if not actions_added:
-                default_action = ('no_op', None)  
-                self.ACTION_MAP[action_id] = default_action
-                self.INVERSE_ACTION_MAP[default_action] = action_id
-                action_id += 1
+        # Option 2: Use heuristic-based transformations
+        transformations = [
+            ('rotate_90', None),
+            ('rotate_180', None),
+            ('rotate_270', None),
+            ('flip_horizontal', None),
+            ('flip_vertical', None),
+            ('scale_up', 1.5),
+            ('scale_down', 0.5)
+        ]
+        for transform_action in transformations:
+            self.ACTION_MAP[action_id] = transform_action
+            self.INVERSE_ACTION_MAP[transform_action] = action_id
+            action_id += 1
+            actions_added = True
 
-            self.RL.action_space = list(self.ACTION_MAP.keys())
-            logger.info(f"Generated {len(self.ACTION_MAP)} actions.")
-        except Exception as e:
-            logging.error(f"Error in generate_action_space: {e}")
+        # If no actions were added, default to no-op
+        if not actions_added:
+            default_action = ('no_op', None)
+            self.ACTION_MAP[action_id] = default_action
+            self.INVERSE_ACTION_MAP[default_action] = action_id
+
+        self.RL.action_space = list(self.ACTION_MAP.keys())
+        logger.info(f"Generated {len(self.ACTION_MAP)} actions without direct access to correct_output.")
+
+    except Exception as e:
+        logging.error(f"Error in generate_action_space: {e}")
 
     def resize_grid(self, grid: np.ndarray, target_shape: Tuple[int, ...]) -> np.ndarray:
         """
